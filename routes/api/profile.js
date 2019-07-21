@@ -77,9 +77,49 @@ router.post(
     if (skills) {
       profileFields.skills = skills.split(/[,;]/).map(skill => skill.trim());
     }
-    console.log(profileFields.skills);
-    res.send('Hallo');
+
+    //Build social object
+    profileFields.social = {};
+    if (youtube) profileFields.social.youtube = youtube;
+    if (twitter) profileFields.social.twitter = twitter;
+    if (facebook) profileFields.social.facebook = facebook;
+    if (linkedin) profileFields.social.linkedin = linkedin;
+    if (instagram) profileFields.social.instagram = instagram;
+
+    try {
+      let profile = await Profile.findOne({ user: req.user.id });
+      if (profile) {
+        //UpDate
+        profile = await Profile.findOneAndUpdate(
+          { user: req.user.id },
+          { $set: profileFields },
+          { new: true }
+        );
+        return res.json(profile);
+      }
+
+      //Create new profile
+      profile = new Profile(profileFields);
+      await profile.save();
+      res.json(profile);
+    } catch (err) {
+      console.err(err.message);
+      res.status(500).send('Server Error');
+    }
   }
 );
 
+// @route   GET api/profile
+// @desc    Get all user profiles
+// @access  Public
+
+router.get('/', async (req, res) => {
+  try {
+    const profiles = await Profile.find().populate('user', ['name', 'avatar']);
+    res.json(profiles);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error!');
+  }
+});
 module.exports = router;
