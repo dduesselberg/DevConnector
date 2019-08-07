@@ -1,4 +1,6 @@
 {
   "mongoURI": "mongodb+srv://lldavej:Verge$5en@devconnector-hqueh.mongodb.net/test?retryWrites=true&w=majority",
-  "jwtSecret": "mysercrettoken"
+  "jwtSecret": "mysercrettoken",
+  "githubClientId": "c021bfca11349f1b45a5",
+  "githubSecret": "5b7ec836346507085e6d56beb4cde9657d914b2e"
 }
