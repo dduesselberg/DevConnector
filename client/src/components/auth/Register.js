@@ -1,6 +1,11 @@
 import React, { Fragment, useState } from 'react';
+import { Link, Redirect } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { setAlert } from '../../actions/alert';
+import { register } from '../../actions/auth';
+import PropTypes from 'prop-types';
 
-const Register = () => {
+const Register = props => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -12,14 +17,19 @@ const Register = () => {
   const onChange = e =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const onSubmit = e => {
+  const onSubmit = async e => {
     e.preventDefault();
     if (password !== password2) {
-      console.log('Passwords do not match');
+      props.setAlert('Passwords do not match', 'danger', 1000);
     } else {
-      console.log(formData);
+      props.register({ name, email, password });
     }
   };
+
+  //Redirect if logged in
+  if (props.isAuthenticated) {
+    return <Redirect to="/dashboard"></Redirect>;
+  }
 
   return (
     <Fragment>
@@ -45,6 +55,7 @@ const Register = () => {
             name="email"
             value={email}
             onChange={e => onChange(e)}
+            required
           />
           <small className="form-text">
             This site uses Gravatar, so if you want ta profile image, use a
@@ -58,7 +69,8 @@ const Register = () => {
             name="password"
             value={password}
             onChange={e => onChange(e)}
-            minlength="6"
+            minLength="6"
+            required
           />
         </div>
         <div className="form-group">
@@ -68,16 +80,30 @@ const Register = () => {
             name="password2"
             value={password2}
             onChange={e => onChange(e)}
-            minlength="6"
+            minLength="6"
+            required
           />
         </div>
         <input type="submit" value="Register" className="btn btn-primary" />
       </form>
       <p className="my-1">
-        Already have an Account? <a href="login.html">Sign In!</a>
+        Already have an Account? <Link to="/login">Sign In!</Link>
       </p>
     </Fragment>
   );
 };
 
-export default Register;
+Register.propTypes = {
+  setAlert: PropTypes.func.isRequired,
+  register: PropTypes.func.isRequired,
+  isAuthenticated: PropTypes.bool
+};
+
+const mapStateToProps = state => ({
+  isAuthenticated: state.auth.isAuthenticated
+});
+
+export default connect(
+  mapStateToProps,
+  { setAlert, register }
+)(Register);
